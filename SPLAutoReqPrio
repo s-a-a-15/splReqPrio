@@ -1,0 +1,50 @@
+#imports
+import numpy as np
+import math
+from operator import itemgetter
+import pandas as pd
+import xml.etree.ElementTree as ET
+#-------------------------
+#asking for input values
+Fnum = int(input("Enter number of features:"))
+Fparameters=np.zeros((Fnum,4))
+weights=np.zeros(4)
+
+weights[0],weights[1],weights[2],weights[3] = input("Enter weights of values with the same order \n Benefit Penalty Cost Risk:").split(' ')
+
+for i in range(Fnum):
+  print('\n Feature ', i+1)
+  Fparameters[i,0],Fparameters[i,1],Fparameters[i,2],Fparameters[i,3] = input("Enter calculations values with the same order \n Benefit Penalty Cost Risk:").split(' ')
+
+priority=np.zeros((Fnum,2))
+for i in range(Fnum):
+  w1=w2=w3= w4=0
+  w1=weights[0]*Fparameters[i,0]
+  w2=weights[1]*Fparameters[i,1]
+  w3=weights[2]*Fparameters[i,2]
+  w4=weights[3]*Fparameters[i,3]
+  priority[i,0]=i+1
+  priority[i,1]=math.trunc((w3+w4)/(w1+w2))
+print(priority)
+
+df=pd.DataFrame(priority,columns=['F', 'P']).sort_values('P').values.tolist()
+print(df)
+
+spl=ET.Element('spl')
+features = ET.SubElement(spl, 'features')
+for i in range(Fnum):
+  feature = ET.SubElement(features, 'feature', name=('F%d'%i))
+
+Pnum = int(input("Enter number of products:"))
+products = ET.SubElement(spl, 'products')
+for i in range(Pnum):
+  product=0
+  product=ET.SubElement(products, 'product', name=('Product%d'%(i+1)))
+  fnum= int(input("Enter how many features you want for product:"))
+  choices= input("Enter wanted features' index splitted with space:").split(' ')
+  for j in range(fnum):
+    choice = 0
+    choice=choices[j]
+    prodFeat=ET.SubElement(product, 'feature', name=('F%d'%int(choice)))
+splConfig = ET.ElementTree(spl)
+splConfig.write('spl.xml')
